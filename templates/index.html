@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-light rounded-3">
+    <div class="container-fluid py-5 text-center">
+        <h1 class="display-5 fw-bold">SW 로봇 기반 주식 투자 시스템 <span class="badge bg-success">v1.0</span></h1>
+        <p class="col-md-8 fs-4 mx-auto">
+            이 시스템은 Market Intelligence, Stock Analysis & Choice, Trade Robot으로 구성되어 주식 시장의 뉴스를 분석하고,
+            종목을 추천하며, 모의 거래를 실행하는 기능을 제공합니다.
+            <br>이제 웹 기반 UI를 통해 더 직관적으로 로봇을 제어하고 분석 결과를 시각화합니다. **자동화 기능이 강화되어 백그라운드에서 로봇들이 자동으로 실행됩니다.**
+        </p>
+        <hr class="my-4">
+        <p>상단 메뉴를 통해 각 로봇 기능을 사용해보세요!</p>
+        <a class="btn btn-primary btn-lg mt-3" href="{{ url_for('market_intelligence') }}" role="button">Market Intelligence 시작하기 &raquo;</a>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="mb-3">📊 로봇 시스템 실행 상태</h2>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-dark text-white">시장 인텔리전스 로봇</div>
+                    <div class="card-body">
+                        <p class="card-text"><strong>상태:</strong> <span class="badge bg-{{ 'success' if robot_status.mi_status == '완료' else 'warning' if '실행 중' in robot_status.mi_status else 'danger' if '오류' in robot_status.mi_status else 'info' }}">{{ robot_status.mi_status }}</span></p>
+                        <p class="card-text"><strong>마지막 실행:</strong> {{ robot_status.mi_last_run }}</p>
+                        <p class="card-text"><strong>마지막 감성:</strong> {{ robot_status.mi_last_sentiment }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-dark text-white">주식 분석 로봇</div>
+                    <div class="card-body">
+                        <p class="card-text"><strong>상태:</strong> <span class="badge bg-{{ 'success' if '완료' in robot_status.sa_status else 'warning' if '실행 중' in robot_status.sa_status else 'danger' if '오류' in robot_status.sa_status else 'info' }}">{{ robot_status.sa_status }}</span></p>
+                        <p class="card-text"><strong>마지막 실행:</strong> {{ robot_status.sa_last_run }}</p>
+                        <p class="card-text"><strong>마지막 추천:</strong> {{ robot_status.sa_last_recommendation }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-dark text-white">모의 거래 로봇</div>
+                    <div class="card-body">
+                        <p class="card-text"><strong>상태:</strong> <span class="badge bg-{{ 'success' if '완료' in robot_status.tr_status else 'warning' if '실행 중' in robot_status.tr_status else 'danger' if '오류' in robot_status.tr_status else 'info' }}">{{ robot_status.tr_status }}</span></p>
+                        <p class="card-text"><strong>마지막 실행:</strong> {{ robot_status.tr_last_run }}</p>
+                        <p class="card-text"><strong>마지막 동작:</strong> {{ robot_status.tr_last_action }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>시장 인텔리전스</h2>
+        <p>네이버 뉴스에서 특정 키워드에 대한 최신 뉴스를 수집하고, KoNLPy를 이용한 감성 분석을 통해 시장의 분위기를 파악합니다.</p>
+        <p><a class="btn btn-secondary" href="{{ url_for('market_intelligence') }}" role="button">자세히 보기 &raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>주식 분석 및 추천</h2>
+        <p>재무 데이터, 기술적 지표, 그리고 다양한 퀀트 전략을 사용하여 유망한 종목을 분석하고 추천합니다.</p>
+        <p><a class="btn btn-secondary" href="{{ url_for('stock_analysis') }}" role="button">자세히 보기 &raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>모의 거래</h2>
+        <p>추천받은 종목으로 가상의 자산을 활용하여 매수/매도 거래를 시뮬레이션하고 포트폴리오를 관리합니다.</p>
+        <p><a class="btn btn-secondary" href="{{ url_for('trade') }}" role="button">자세히 보기 &raquo;</a></p>
+    </div>
+</div>
+{% endblock %}

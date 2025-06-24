@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">📈 시장 인텔리전스 로봇</h1>
+
+<div class="alert alert-info" role="alert">
+    현재 시장 감성: <strong>{{ robot_status.current_market_sentiment }}</strong> (자동/수동 실행 통합)
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        로봇 상태
+    </div>
+    <div class="card-body">
+        <p class="card-text"><strong>상태:</strong> <span class="badge bg-{{ 'success' if robot_status.mi_status == '완료' else 'warning' if '실행 중' in robot_status.mi_status else 'danger' if '오류' in robot_status.mi_status else 'info' }}">{{ robot_status.mi_status }}</span></p>
+        <p class="card-text"><strong>마지막 실행:</strong> {{ robot_status.mi_last_run }}</p>
+        <p class="card-text"><strong>마지막 감성:</strong> {{ robot_status.mi_last_sentiment }}</p>
+    </div>
+</div>
+
+<form method="POST" action="{{ url_for('market_intelligence') }}" class="mb-4 p-4 border rounded shadow-sm bg-light">
+    <h5 class="mb-3">뉴스 데이터 수집 & 감성 분석 (수동 실행)</h5>
+    <div class="mb-3">
+        <label for="keyword" class="form-label">탐색할 키워드 (생략 시 기본값 중 랜덤 선택):</label>
+        <input type="text" class="form-control" id="keyword" name="keyword" placeholder="예: AI 반도체">
+    </div>
+    <div class="mb-3">
+        <label for="time_period" class="form-label">검색 기간 (예: 최근 1일, 최근 1주, 최근 1개월 / 생략 시 '최근 1주'):</label>
+        <input type="text" class="form-control" id="time_period" name="time_period" value="최근 1주">
+    </div>
+    <button type="submit" class="btn btn-primary">뉴스 수집 및 분석 시작</button>
+</form>
+
+{% if sentiment_graph_url %}
+<div class="card mb-4">
+    <div class="card-header">
+        뉴스 감성 분포
+    </div>
+    <div class="card-body text-center">
+        <img src="data:image/png;base64,{{ sentiment_graph_url }}" class="img-fluid" alt="Sentiment Distribution Graph">
+    </div>
+</div>
+{% endif %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        수집된 최신 뉴스 데이터 (최대 20건)
+    </div>
+    <div class="card-body">
+        {% if news_data %}
+            {{ news_data | safe }}
+        {% else %}
+            <p class="text-muted">수집된 뉴스 데이터가 없습니다. 위 폼을 통해 새로운 뉴스를 수집해주세요.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

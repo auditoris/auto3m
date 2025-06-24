@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">🗄️ DB 데이터 직접 조회</h1>
+
+<p class="text-muted">각 로봇이 저장한 최신 데이터를 직접 조회할 수 있습니다.</p>
+
+<div class="card mb-4">
+    <div class="card-header">
+        로봇 상태 (최근 업데이트)
+    </div>
+    <div class="card-body">
+        <p class="card-text"><strong>시장 인텔리전스:</strong> {{ robot_status.mi_status }} (마지막 실행: {{ robot_status.mi_last_run }})</p>
+        <p class="card-text"><strong>주식 분석:</strong> {{ robot_status.sa_status }} (마지막 실행: {{ robot_status.sa_last_run }})</p>
+        <p class="card-text"><strong>모의 거래:</strong> {{ robot_status.tr_status }} (마지막 실행: {{ robot_status.tr_last_run }})</p>
+    </div>
+</div>
+
+
+<div class="accordion" id="dbAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingNews">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNews" aria-expanded="false" aria-controls="collapseNews">
+                뉴스 데이터 (news_data 테이블)
+            </button>
+        </h2>
+        <div id="collapseNews" class="accordion-collapse collapse" aria-labelledby="headingNews" data-bs-parent="#dbAccordion">
+            <div class="accordion-body">
+                {% if news_data %}
+                    {{ news_data | safe }}
+                {% else %}
+                    <p class="text-muted">뉴스 데이터가 없습니다.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingRecommendations">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRecommendations" aria-expanded="false" aria-controls="collapseRecommendations">
+                추천 종목 데이터 (stock_recommendations 테이블)
+            </button>
+        </h2>
+        <div id="collapseRecommendations" class="accordion-collapse collapse" aria-labelledby="headingRecommendations" data-bs-parent="#dbAccordion">
+            <div class="accordion-body">
+                {% if recommendations %}
+                    {{ recommendations | safe }}
+                {% else %}
+                    <p class="text-muted">추천 종목 데이터가 없습니다.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingTradeLog">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTradeLog" aria-expanded="false" aria-controls="collapseTradeLog">
+                거래 로그 (trade_log 테이블)
+            </button>
+        </h2>
+        <div id="collapseTradeLog" class="accordion-collapse collapse" aria-labelledby="headingTradeLog" data-bs-parent="#dbAccordion">
+            <div class="accordion-body">
+                {% if trade_log %}
+                    {{ trade_log | safe }}
+                {% else %}
+                    <p class="text-muted">거래 로그가 없습니다.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

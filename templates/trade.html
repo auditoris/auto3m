@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">💼 Trade Robot (모의 거래)</h1>
+
+<div class="alert alert-success" role="alert">
+    <p class="mb-1"><strong>가상 현금 잔고:</strong> {{ cash_balance }}원</p>
+    <p class="mb-0"><strong>총 계좌 평가액 (현금+주식):</strong> {{ total_asset_value }}원</p>
+</div>
+
+{% if robot_status.last_recommended_stock_code %}
+<div class="alert alert-info" role="alert">
+    <strong>✨ Stock Analysis Robot 추천 종목:</strong> {{ robot_status.last_recommended_stock_name }} ({{ robot_status.last_recommended_stock_code }}), 현재가: {{ robot_status.last_recommended_stock_price }}원
+</div>
+{% endif %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        로봇 상태
+    </div>
+    <div class="card-body">
+        <p class="card-text"><strong>상태:</strong> <span class="badge bg-{{ 'success' if '완료' in robot_status.tr_status else 'warning' if '실행 중' in robot_status.tr_status else 'danger' if '오류' in robot_status.tr_status else 'info' }}">{{ robot_status.tr_status }}</span></p>
+        <p class="card-text"><strong>마지막 실행:</strong> {{ robot_status.tr_last_run }}</p>
+        <p class="card-text"><strong>마지막 동작:</strong> {{ robot_status.tr_last_action }}</p>
+    </div>
+</div>
+
+
+<form method="POST" action="{{ url_for('trade') }}" class="mb-4 p-4 border rounded shadow-sm bg-light">
+    <h5 class="mb-3">모의 매수/매도 주문 (수동 실행)</h5>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="symbol_name" class="form-label">종목명:</label>
+            <input type="text" class="form-control" id="symbol_name" name="symbol_name"
+                   value="{{ robot_status.last_recommended_stock_name if robot_status.last_recommended_stock_name else '' }}" required>
+        </div>
+        <div class="col-md-6">
+            <label for="symbol_code" class="form-label">종목 코드:</label>
+            <input type="text" class="form-control" id="symbol_code" name="symbol_code"
+                   value="{{ robot_status.last_recommended_stock_code if robot_status.last_recommended_stock_code else '' }}" required>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="order_type" class="form-label">주문 유형:</label>
+            <select class="form-select" id="order_type" name="order_type" required>
+                <option value="">선택</option>
+                <option value="매수">매수</option>
+                <option value="매도">매도</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="price_type" class="form-label">가격 유형:</label>
+            <select class="form-select" id="price_type" name="price_type" required>
+                <option value="">선택</option>
+                <option value="시장가">시장가</option>
+                <option value="지정가">지정가</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="order_price" class="form-label">지정 가격 (시장가 선택 시 무시):</label>
+            <input type="number" class="form-control" id="order_price" name="order_price" placeholder="예: 75000">
+        </div>
+        <div class="col-md-6">
+            <label for="quantity" class="form-label">수량:</label>
+            <input type="number" class="form-control" id="quantity" name="quantity" placeholder="예: 10" required>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">주문 실행</button>
+</form>
+
+<div class="card mb-4">
+    <div class="card-header">
+        현재 보유 포트폴리오
+    </div>
+    <div class="card-body">
+        {% if portfolio %}
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>종목코드</th>
+                            <th>종목명</th>
+                            <th>매입단가</th>
+                            <th>보유수량</th>
+                            <th>매입금액</th>
+                            <th>현재가</th>
+                            <th>평가손익</th>
+                            <th>수익률(%)</th>
+                            <th>최종업데이트</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in portfolio.iterrows() %}
+                        <tr>
+                            <td>{{ row[1].stock_code }}</td>
+                            <td>{{ row[1].stock_name }}</td>
+                            <td>{{ '%s원' % '{:,.0f}'.format(row[1].매입단가) }}</td>
+                            <td>{{ '%s주' % '{:,.0f}'.format(row[1].보유수량) }}</td>
+                            <td>{{ '%s원' % '{:,.0f}'.format(row[1].매입금액) }}</td>
+                            <td>{{ '%s원' % '{:,.0f}'.format(row[1].현재가) if row[1].현재가 is not none else 'N/A' }}</td>
+                            <td class="{{ 'text-success' if row[1].평가손익 > 0 else 'text-danger' if row[1].평가손익 < 0 else '' }}">
+                                {{ '%s원' % '{:,.0f}'.format(row[1].평가손익) if row[1].평가손익 is not none else 'N/A' }}
+                            </td>
+                            <td class="{{ 'text-success' if row[1].수익률 > 0 else 'text-danger' if row[1].수익률 < 0 else '' }}">
+                                {{ '%s%%' % '{:,.2f}'.format(row[1].수익률) if row[1].수익률 is not none else 'N/A' }}
+                            </td>
+                            <td>{{ row[1].last_updated }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted">보유 종목이 없습니다.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if asset_chart_url %}
+<div class="card mb-4">
+    <div class="card-header">
+        가상 현금 잔고 변화 추이
+    </div>
+    <div class="card-body text-center">
+        <img src="data:image/png;base64,{{ asset_chart_url }}" class="img-fluid" alt="Asset Chart">
+        <p class="text-muted mt-2">※ 잔고 변화 추이는 거래 발생 시점의 현금 잔고를 기반으로 합니다.</p>
+    </div>
+</div>
+{% endif %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        최신 거래 로그 (DB에서 조회)
+    </div>
+    <div class="card-body">
+        {% if trade_log %}
+            {{ trade_log | safe }}
+        {% else %}
+            <p class="text-muted">기록된 거래 로그가 없습니다.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
